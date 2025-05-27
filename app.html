@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsightCopilot: Document Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.10/babel.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e1e3b 100%);
+            min-height: 100vh;
+            color: #f3f4f6;
+        }
+        .glass-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-container:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #f3f4f6;
+            border-radius: 8px;
+            transition: border-color 0.3s ease;
+        }
+        .glass-input:focus {
+            border-color: #93c5fd;
+            outline: none;
+        }
+        .drag-over {
+            background: rgba(147, 197, 253, 0.3);
+            border-color: #93c5fd;
+        }
+        .table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table-container th, .table-container td {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            text-align: left;
+            color: #f3f4f6;
+        }
+        .table-container th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+        }
+        details summary {
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        details summary:hover {
+            color: #93c5fd;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
+        }
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+        .btn-disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+        }
+        .tooltip {
+            position: relative;
+        }
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        .file-preview img {
+            max-width: 80px;
+            max-height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .progress-bar {
+            height: 6px;
+            background: #93c5fd;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="root" class="container mx-auto p-4 sm:p-6 lg:p-8"></div>
+
+    <script type="text/babel">
+        function App() {
+            const [files, setFiles] = React.useState([]);
+            const [query, setQuery] = React.useState("");
+            const [output, setOutput] = React.useState(null);
+            const [customAnswer, setCustomAnswer] = React.useState(null);
+            const [loading, setLoading] = React.useState(false);
+            const [error, setError] = React.useState("");
+            const [dragActive, setDragActive] = React.useState(false);
+            const [progress, setProgress] = React.useState(0);
+            const fileInputRef = React.useRef(null);
+
+            const suggestedQuestions = [
+                "What is the main topic of the document?",
+                "Can you summarize the key points?",
+                "What are the main data points in the tables?",
+                "Who is the author or creator of the document?",
+                "What are the key dates mentioned?"
+            ];
+
+            const handleDrag = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.type === "dragenter" || e.type === "dragover") {
+                    setDragActive(true);
+                } else if (e.type === "dragleave") {
+                    setDragActive(false);
+                }
+            };
+
+            const handleDrop = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setDragActive(false);
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    setFiles([...files, ...Array.from(e.dataTransfer.files)]);
+                    setError("");
+                }
+            };
+
+            const handleFileChange = (e) => {
+                setFiles([...files, ...Array.from(e.target.files)]);
+                setError("");
+            };
+
+            const removeFile = (index) => {
+                setFiles(files.filter((_, i) => i !== index));
+            };
+
+            const handleProcessFiles = async () => {
+                if (files.length === 0) {
+                    setError("Please upload at least one file.");
+                    return;
+                }
+                setLoading(true);
+                setError("");
+                setProgress(0);
+                const formData = new FormData();
+                Array.from(files).forEach(file => {
+                    if (file.size > 10 * 1024 * 1024) {
+                        setError(`File ${file.name} exceeds 10MB limit.`);
+                        setLoading(false);
+                        return;
+                    }
+                    formData.append("files", file);
+                });
+                try {
+                    const response = await fetch("http://localhost:5000/process", {
+                        method: "POST",
+                        body: formData
+                    });
+                    // Simulate progress
+                    const interval = setInterval(() => {
+                        setProgress(prev => Math.min(prev + 10, 100));
+                    }, 500);
+                    const data = await response.json();
+                    clearInterval(interval);
+                    setProgress(100);
+                    if (response.ok) {
+                        setOutput(data);
+                        setCustomAnswer(null);
+                    } else {
+                        setError(data.error || "Error processing files.");
+                    }
+                } catch (err) {
+                    setError("Failed to connect to the server.");
+                } finally {
+                    setLoading(false);
+                    setTimeout(() => setProgress(0), 1000);
+                }
+            };
+
+            const handleQuerySubmit = async () => {
+                if (!query || !output) {
+                    setError("Please process files and enter a query.");
+                    return;
+                }
+                setLoading(true);
+                setError("");
+                try {
+                    const response = await fetch("http://localhost:5000/query", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ query })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        setCustomAnswer(data);
+                    } else {
+                        setError(data.error || "Error answering query.");
+                    }
+                } catch (err) {
+                    setError("Failed to connect to the server.");
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const handleSuggestedQuestion = (question) => {
+                setQuery(question);
+            };
+
+            return (
+                <div className="glass-container p-6 sm:p-8 lg:p-10">
+                    <h1 className="text-3xl sm:text-4xl font-bold mb-4 text-blue-300">InsightCopilot: Document Analysis</h1>
+                    <p className="text-gray-300 mb-6 text-sm sm:text-base">Upload PDF, Excel, or image files (PDF, XLSX, JPG, PNG) to extract insights, view summaries, and ask questions.</p>
+                    
+                    <div className="mb-8">
+                        <label className="block text-gray-200 font-semibold mb-2 text-lg">Upload Files</label>
+                        <div
+                            className={`glass-container p-6 border-2 border-dashed ${dragActive ? 'drag-over' : 'border-gray-400'} flex flex-col items-center justify-center relative`}
+                            onDragEnter={handleDrag}
+                            onDragOver={handleDrag}
+                            onDragLeave={handleDrag}
+                            onDrop={handleDrop}
+                            role="region"
+                            aria-label="Drag and drop files here"
+                        >
+                            <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V12m0 0V8m0 4h10m-10 4h10m-5-12v12"></path>
+                            </svg>
+                            <p className="text-gray-300 text-center">Drag & drop files here or click to browse</p>
+                            <p className="text-gray-400 text-sm mt-2">Supported formats: PDF, XLSX, JPG, PNG (max 10MB each)</p>
+                            <input
+                                type="file"
+                                multiple
+                                accept=".pdf,.xlsx,.xls,.jpg,.jpeg,.png"
+                                onChange={handleFileChange}
+                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                ref={fileInputRef}
+                                aria-label="File upload input"
+                            />
+                        </div>
+                    </div>
+
+                    {files.length > 0 && (
+                        <div className="mb-8">
+                            <h2 className="text-xl font-semibold mb-4 text-blue-200">Uploaded Files</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {files.map((file, index) => (
+                                    <div key={index} className="glass-container p-4 flex items-center justify-between">
+                                        <div className="flex items-center space-x-4">
+                                            {file.type.includes("image") ? (
+                                                <img src={URL.createObjectURL(file)} alt={file.name} className="file-preview" />
+                                            ) : (
+                                                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9l-7-7H7a2 2 0 00-2 2v16a2 2 0 002 2z"></path>
+                                                </svg>
+                                            )}
+                                            <div>
+                                                <p className="text-gray-200 font-medium">{file.name}</p>
+                                                <p className="text-gray-400 text-sm">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => removeFile(index)}
+                                            className="text-red-400 hover:text-red-300"
+                                            aria-label={`Remove ${file.name}`}
+                                        >
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <button
+                        onClick={handleProcessFiles}
+                        disabled={loading || files.length === 0}
+                        className={`w-full py-3 px-6 rounded-lg text-white font-semibold ${loading || files.length === 0 ? 'btn-disabled' : 'btn-primary'} transition duration-200`}
+                        data-tooltip="Process uploaded files to extract insights"
+                    >
+                        {loading ? (
+                            <span className="flex items-center justify-center">
+                                <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                </svg>
+                                Processing...
+                            </span>
+                        ) : "Process Files"}
+                    </button>
+                    {loading && (
+                        <div className="mt-4">
+                            <div className="w-full bg-gray-600 rounded-full h-2">
+                                <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+                            </div>
+                        </div>
+                    )}
+
+                    {error && <p className="text-red-400 mt-4 text-center">{error}</p>}
+
+                    {output && (
+                        <div className="mt-10">
+                            <h2 className="text-2xl font-semibold mb-6 text-blue-200">Analysis Results</h2>
+                            <details open className="mb-6">
+                                <summary className="text-lg font-semibold text-blue-200">Summary</summary>
+                                <div className="glass-container p-6 mt-2">
+                                    <p className="text-gray-200">{output.summary}</p>
+                                </div>
+                            </details>
+
+                            <details className="mb-6">
+                                <summary className="text-lg font-semibold text-blue-200">Extracted Tables</summary>
+                                <div className="mt-2">
+                                    {output.tables && output.tables.length > 0 ? output.tables.map((table, index) => (
+                                        <div key={index} className="mb-6">
+                                            <h3 className="text-lg font-semibold text-gray-200 mb-2">Table {index + 1}</h3>
+                                            <div className="table-container">
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            {Object.keys(table[0] || {}).map((col) => (
+                                                                <th key={col}>{col}</th>
+                                                            ))}
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {table.map((row, rowIndex) => (
+                                                            <tr key={rowIndex}>
+                                                                {Object.values(row).map((cell, cellIndex) => (
+                                                                    <td key={cellIndex}>{cell}</td>
+                                                                ))}
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    )) : <p className="text-gray-400">No tables extracted.</p>}
+                                </div>
+                            </details>
+
+                            <details className="mb-6">
+                                <summary className="text-lg font-semibold text-blue-200">Predefined Questions</summary>
+                                <div className="mt-2">
+                                    {output.answers && output.answers.map((ans, index) => (
+                                        <div key={index} className="mb-4">
+                                            <p className="font-semibold text-gray-200">Q: {ans.query}</p>
+                                            <p className="text-gray-300">A: {ans.answer}</p>
+                                            <details className="mt-2">
+                                                <summary className="text-blue-400">View Context</summary>
+                                                <p className="text-gray-300 bg-gray-800/50 p-2 rounded glass-container">{ans.context}</p>
+                                            </details>
+                                        </div>
+                                    ))}
+                                </div>
+                            </details>
+                        </div>
+                    )}
+
+                    <div className="mt-10">
+                        <label className="block text-gray-200 font-semibold mb-2 text-lg" htmlFor="query-input">Ask a Custom Question</label>
+                        <textarea
+                            id="query-input"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            placeholder="Enter your question (e.g., What are the key findings?)"
+                            className="w-full p-3 rounded glass-input mb-4 min-h-[100px] resize-y"
+                            aria-label="Custom question input"
+                        />
+                        <div className="mb-4">
+                            <p className="text-gray-200 font-semibold mb-2">Suggested Questions:</p>
+                            <div className="flex flex-wrap gap-2">
+                                {suggestedQuestions.map((question, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => handleSuggestedQuestion(question)}
+                                        className="px-3 py-1 bg-blue-500/20 hover:bg-blue-500/40 text-blue-200 rounded-full text-sm transition duration-200"
+                                    >
+                                        {question}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <button
+                            onClick={handleQuerySubmit}
+                            disabled={loading || !output || !query}
+                            className={`w-full py-3 px-6 rounded-lg text-white font-semibold ${loading || !output || !query ? 'btn-disabled' : 'btn-primary'} transition duration-200`}
+                            data-tooltip="Submit your custom question"
+                        >
+                            {loading ? (
+                                <span className="flex items-center justify-center">
+                                    <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                    </svg>
+                                    Answering...
+                                </span>
+                            ) : "Submit Query"}
+                        </button>
+                    </div>
+
+                    {customAnswer && (
+                        <div className="mt-10">
+                            <h2 className="text-2xl font-semibold mb-6 text-blue-200">Custom Question</h2>
+                            <div className="glass-container p-6">
+                                <p className="font-semibold text-gray-200">Q: {customAnswer.query}</p>
+                                <p className="text-gray-300">A: {customAnswer.answer}</p>
+                                <details className="mt-2">
+                                    <summary className="text-blue-400">View Context</summary>
+                                    <p className="text-gray-300 bg-gray-800/50 p-2 rounded glass-container">{customAnswer.context}</p>
+                                </details>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="mt-8 text-gray-400 text-sm">
+                        <p>Need help? Supported formats: PDF, XLSX, JPG, PNG (max 10MB each). Drag and drop files or click to browse.</p>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById("root"));
+    </script>
+</body>
+</html>
