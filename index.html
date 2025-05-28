@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsightCopilot: Welcome</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.10/babel.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            color: #f3f4f6;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.4) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+        }
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 48px 40px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        .welcome-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        .title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 24px;
+            text-align: center;
+            line-height: 1.1;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+        .brand-highlight {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            font-size: clamp(1.1rem, 2.5vw, 1.25rem);
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+        .features-preview {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+        .feature-item {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        .feature-icon {
+            font-size: 1.2rem;
+        }
+        .cta-button {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 180px;
+            justify-content: center;
+            box-shadow: 
+                0 4px 15px rgba(79, 70, 229, 0.4),
+                0 1px 0 rgba(255, 255, 255, 0.2) inset;
+        }
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 25px rgba(79, 70, 229, 0.5),
+                0 1px 0 rgba(255, 255, 255, 0.3) inset;
+        }
+        .cta-button:hover::before {
+            left: 100%;
+        }
+        .cta-button:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .button-icon {
+            transition: transform 0.3s ease;
+        }
+        .cta-button:hover .button-icon {
+            transform: translateX(4px);
+        }
+        .upload-hint {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 16px;
+        }
+        .footer {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes backgroundShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        @media (max-width: 768px) {
+            .welcome-card {
+                margin: 20px;
+                padding: 32px 24px;
+                border-radius: 20px;
+            }
+            .features-preview {
+                flex-direction: column;
+                align-items: center;
+            }
+            .feature-item {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+            .cta-button {
+                width: 100%;
+                max-width: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root" class="container mx-auto p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-center flex-grow"></div>
+
+    <script type="text/babel">
+        function Home() {
+            const [isLoading, setIsLoading] = React.useState(false);
+
+            const handleRedirect = () => {
+                setIsLoading(true);
+                setTimeout(() => {
+                    window.location.href = 'app.html';
+                }, 500); // Simulate loading for smooth transition
+            };
+
+            return (
+                <div className="welcome-container">
+                    <div className="welcome-card">
+                        <div className="hero-icon">
+                            <svg className="w-16 h-16 text-white/80 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 006 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                            </svg>
+                        </div>
+                        <h1 className="title">
+                            Welcome to <span className="brand-highlight">InsightCopilot</span>
+                        </h1>
+                        <p className="subtitle">
+                            Transform your documents into actionable insights. Upload PDFs, Excel files, or images and unlock powerful AI-driven analysis, summaries, and intelligent answers.
+                        </p>
+                        <div className="features-preview">
+                            <div className="feature-item">
+                                <span className="feature-icon">📄</span>
+                                <span>Smart Document Analysis</span>
+                            </div>
+                            <div className="feature-item">
+                                <span className="feature-icon">📊</span>
+                                <span>Data Extraction</span>
+                            </div>
+                            <div className="feature-item">
+                                <span className="feature-icon">🤖</span>
+                                <span>AI-Powered Insights</span>
+                            </div>
+                        </div>
+                        <div className="cta-section">
+                            <button
+                                onClick={handleRedirect}
+                                disabled={isLoading}
+                                className="cta-button"
+                                aria-label="Go to document analysis tool"
+                            >
+                                {isLoading ? (
+                                    <span className="flex items-center gap-2">
+                                        <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                        </svg>
+                                        Loading...
+                                    </span>
+                                ) : (
+                                    <>
+                                        <span className="button-text">Get Started</span>
+                                        <span className="button-icon">→</span>
+                                    </>
+                                )}
+                            </button>
+                            <p className="upload-hint">
+                                Supports PDF, XLSX, JPG, PNG files up to 10MB
+                            </p>
+                        </div>
+                    </div>
+                    <footer className="footer">
+                        <p>© {new Date().getFullYear()} InsightCopilot. All rights reserved.</p>
+                    </footer>
+                </div>
+            );
+        }
+
+        function App() {
+            return <Home />;
+        }
+
+        ReactDOM.render(<App />, document.getElementById("root"));
+    </script>
+</body>
+</html>

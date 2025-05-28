@@ -8,91 +8,166 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.10/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --card-border: rgba(255, 255, 255, 0.2);
+            --text-primary: #f3f4f6;
+            --text-secondary: #d1d5db;
+            --button-bg: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            --button-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme="dark"] {
+            --background-gradient: linear-gradient(135deg, #1e3a8a 0%, #1e1e3b 100%);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+        }
+
+        [data-theme="light"] {
+            --background-gradient: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e1e3b 100%);
+            background: var(--background-gradient);
             min-height: 100vh;
-            color: #f3f4f6;
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background 0.3s ease;
         }
-        .glass-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
             border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .glass-container:hover {
+
+        .card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
         }
-        .glass-input {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #f3f4f6;
-            border-radius: 8px;
-            transition: border-color 0.3s ease;
+
+        .upload-area {
+            border: 2px dashed var(--card-border);
+            border-radius: 12px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 32px;
+            transition: all 0.3s ease;
         }
-        .glass-input:focus {
-            border-color: #93c5fd;
-            outline: none;
+
+        .upload-area:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
-        .drag-over {
+
+        .upload-area.drag-over {
             background: rgba(147, 197, 253, 0.3);
             border-color: #93c5fd;
+            transform: scale(1.02);
         }
+
+        .glass-input {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            border-radius: 8px;
+            padding: 12px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            resize: vertical;
+        }
+
+        .glass-input:focus {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.2);
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--button-bg);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            color: #fff;
+            transition: all 0.3s ease;
+            box-shadow: var(--button-shadow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
         .table-container {
             max-height: 300px;
             overflow-y: auto;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
             border-radius: 8px;
         }
+
         .table-container table {
             width: 100%;
             border-collapse: collapse;
         }
+
         .table-container th, .table-container td {
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid var(--card-border);
             padding: 12px;
             text-align: left;
-            color: #f3f4f6;
+            color: var(--text-primary);
         }
+
         .table-container th {
             background: rgba(255, 255, 255, 0.1);
             font-weight: 600;
         }
+
         details summary {
             cursor: pointer;
+            font-weight: 500;
+            color: var(--text-primary);
             transition: color 0.3s ease;
         }
+
         details summary:hover {
             color: #93c5fd;
         }
-        .btn-primary {
-            background: linear-gradient(90deg, #3b82f6, #60a5fa);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .btn-primary:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
-        }
-        .btn-primary:active {
-            transform: scale(0.95);
-        }
-        .btn-disabled {
-            background: #6b7280;
-            cursor: not-allowed;
-        }
+
         .tooltip {
             position: relative;
         }
+
         .tooltip:hover::after {
             content: attr(data-tooltip);
             position: absolute;
@@ -107,22 +182,74 @@
             white-space: nowrap;
             z-index: 10;
         }
+
         .file-preview img {
             max-width: 80px;
             max-height: 80px;
             object-fit: cover;
             border-radius: 8px;
         }
+
         .progress-bar {
             height: 6px;
             background: #93c5fd;
             border-radius: 4px;
             transition: width 0.3s ease;
         }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 640px) {
+            .card {
+                padding: 16px;
+            }
+            .upload-area {
+                padding: 16px;
+            }
+            .btn-primary {
+                padding: 10px 16px;
+            }
+            h1 {
+                font-size: 1.75rem;
+            }
+            h2 {
+                font-size: 1.25rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div id="root" class="container mx-auto p-4 sm:p-6 lg:p-8"></div>
+    <div id="root" class="container mx-auto p-6 sm:p-8 lg:p-12"></div>
 
     <script type="text/babel">
         function App() {
@@ -134,7 +261,9 @@
             const [error, setError] = React.useState("");
             const [dragActive, setDragActive] = React.useState(false);
             const [progress, setProgress] = React.useState(0);
+            const [theme, setTheme] = React.useState("dark");
             const fileInputRef = React.useRef(null);
+            const textareaRef = React.useRef(null);
 
             const suggestedQuestions = [
                 "What is the main topic of the document?",
@@ -143,6 +272,22 @@
                 "Who is the author or creator of the document?",
                 "What are the key dates mentioned?"
             ];
+
+            // Auto-resize textarea
+            React.useEffect(() => {
+                const textarea = textareaRef.current;
+                if (textarea) {
+                    textarea.style.height = "auto";
+                    textarea.style.height = `${textarea.scrollHeight}px`;
+                }
+            }, [query]);
+
+            // Theme toggle
+            const toggleTheme = () => {
+                const newTheme = theme === "dark" ? "light" : "dark";
+                setTheme(newTheme);
+                document.documentElement.setAttribute("data-theme", newTheme);
+            };
 
             const handleDrag = (e) => {
                 e.preventDefault();
@@ -195,7 +340,6 @@
                         method: "POST",
                         body: formData
                     });
-                    // Simulate progress
                     const interval = setInterval(() => {
                         setProgress(prev => Math.min(prev + 10, 100));
                     }, 500);
@@ -247,186 +391,97 @@
             };
 
             return (
-                <div className="glass-container p-6 sm:p-8 lg:p-10">
-                    <h1 className="text-3xl sm:text-4xl font-bold mb-4 text-blue-300">InsightCopilot: Document Analysis</h1>
-                    <p className="text-gray-300 mb-6 text-sm sm:text-base">Upload PDF, Excel, or image files (PDF, XLSX, JPG, PNG) to extract insights, view summaries, and ask questions.</p>
-                    
-                    <div className="mb-8">
-                        <label className="block text-gray-200 font-semibold mb-2 text-lg">Upload Files</label>
-                        <div
-                            className={`glass-container p-6 border-2 border-dashed ${dragActive ? 'drag-over' : 'border-gray-400'} flex flex-col items-center justify-center relative`}
-                            onDragEnter={handleDrag}
-                            onDragOver={handleDrag}
-                            onDragLeave={handleDrag}
-                            onDrop={handleDrop}
-                            role="region"
-                            aria-label="Drag and drop files here"
+                <div className="relative">
+                    <div className="fixed top-4 right-4 z-50">
+                        <button
+                            onClick={toggleTheme}
+                            className="theme-toggle"
+                            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+                            data-tooltip={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
                         >
-                            <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V12m0 0V8m0 4h10m-10 4h10m-5-12v12"></path>
-                            </svg>
-                            <p className="text-gray-300 text-center">Drag & drop files here or click to browse</p>
-                            <p className="text-gray-400 text-sm mt-2">Supported formats: PDF, XLSX, JPG, PNG (max 10MB each)</p>
-                            <input
-                                type="file"
-                                multiple
-                                accept=".pdf,.xlsx,.xls,.jpg,.jpeg,.png"
-                                onChange={handleFileChange}
-                                className="absolute inset-0 opacity-0 cursor-pointer"
-                                ref={fileInputRef}
-                                aria-label="File upload input"
-                            />
-                        </div>
+                            {theme === "dark" ? (
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                            ) : (
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                                </svg>
+                            )}
+                        </button>
                     </div>
 
-                    {files.length > 0 && (
-                        <div className="mb-8">
-                            <h2 className="text-xl font-semibold mb-4 text-blue-200">Uploaded Files</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {files.map((file, index) => (
-                                    <div key={index} className="glass-container p-4 flex items-center justify-between">
-                                        <div className="flex items-center space-x-4">
-                                            {file.type.includes("image") ? (
-                                                <img src={URL.createObjectURL(file)} alt={file.name} className="file-preview" />
-                                            ) : (
-                                                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9l-7-7H7a2 2 0 00-2 2v16a2 2 0 002 2z"></path>
-                                                </svg>
-                                            )}
-                                            <div>
-                                                <p className="text-gray-200 font-medium">{file.name}</p>
-                                                <p className="text-gray-400 text-sm">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={() => removeFile(index)}
-                                            className="text-red-400 hover:text-red-300"
-                                            aria-label={`Remove ${file.name}`}
-                                        >
-                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    <div className="card animate-in p-8 sm:p-10 lg:p-12">
+                        <h1 className="text-3xl sm:text-4xl font-bold mb-6">InsightCopilot: Document Analysis</h1>
+                        <p className="text-[var(--text-secondary)] mb-8 text-base sm:text-lg">Upload PDF, Excel, or image files to extract insights, view summaries, and ask questions.</p>
 
-                    <button
-                        onClick={handleProcessFiles}
-                        disabled={loading || files.length === 0}
-                        className={`w-full py-3 px-6 rounded-lg text-white font-semibold ${loading || files.length === 0 ? 'btn-disabled' : 'btn-primary'} transition duration-200`}
-                        data-tooltip="Process uploaded files to extract insights"
-                    >
-                        {loading ? (
-                            <span className="flex items-center justify-center">
-                                <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        <div className="card mb-8">
+                            <label className="block text-[var(--text-primary)] font-semibold mb-4 text-lg">Upload Files</label>
+                            <div
+                                className={`upload-area flex flex-col items-center justify-center relative ${dragActive ? 'drag-over' : ''}`}
+                                onDragEnter={handleDrag}
+                                onDragOver={handleDrag}
+                                onDragLeave={handleDrag}
+                                onDrop={handleDrop}
+                                role="region"
+                                aria-label="Drag and drop files here"
+                            >
+                                <svg className="w-12 h-12 text-[var(--text-secondary)] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V12m0 0V8m0 4h10m-10 4h10m-5-12v12"></path>
                                 </svg>
-                                Processing...
-                            </span>
-                        ) : "Process Files"}
-                    </button>
-                    {loading && (
-                        <div className="mt-4">
-                            <div className="w-full bg-gray-600 rounded-full h-2">
-                                <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+                                <p className="text-[var(--text-secondary)] text-center">Drag & drop files here or click to browse</p>
+                                <p className="text-[var(--text-secondary)] text-sm mt-2">Supported formats: PDF, XLSX, JPG, PNG (max 10MB each)</p>
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept=".pdf,.xlsx,.xls,.jpg,.jpeg,.png"
+                                    onChange={handleFileChange}
+                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                    ref={fileInputRef}
+                                    aria-label="File upload input"
+                                />
                             </div>
                         </div>
-                    )}
 
-                    {error && <p className="text-red-400 mt-4 text-center">{error}</p>}
-
-                    {output && (
-                        <div className="mt-10">
-                            <h2 className="text-2xl font-semibold mb-6 text-blue-200">Analysis Results</h2>
-                            <details open className="mb-6">
-                                <summary className="text-lg font-semibold text-blue-200">Summary</summary>
-                                <div className="glass-container p-6 mt-2">
-                                    <p className="text-gray-200">{output.summary}</p>
-                                </div>
-                            </details>
-
-                            <details className="mb-6">
-                                <summary className="text-lg font-semibold text-blue-200">Extracted Tables</summary>
-                                <div className="mt-2">
-                                    {output.tables && output.tables.length > 0 ? output.tables.map((table, index) => (
-                                        <div key={index} className="mb-6">
-                                            <h3 className="text-lg font-semibold text-gray-200 mb-2">Table {index + 1}</h3>
-                                            <div className="table-container">
-                                                <table>
-                                                    <thead>
-                                                        <tr>
-                                                            {Object.keys(table[0] || {}).map((col) => (
-                                                                <th key={col}>{col}</th>
-                                                            ))}
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {table.map((row, rowIndex) => (
-                                                            <tr key={rowIndex}>
-                                                                {Object.values(row).map((cell, cellIndex) => (
-                                                                    <td key={cellIndex}>{cell}</td>
-                                                                ))}
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
+                        {files.length > 0 && (
+                            <div className="card mb-8">
+                                <h2 className="text-xl font-semibold mb-4">Uploaded Files</h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {files.map((file, index) => (
+                                        <div key={index} className="card p-4 flex items-center justify-between animate-in">
+                                            <div className="flex items-center space-x-4">
+                                                {file.type.includes("image") ? (
+                                                    <img src={URL.createObjectURL(file)} alt={file.name} className="file-preview" />
+                                                ) : (
+                                                    <svg className="w-12 h-12 text-[var(--text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9l-7-7H7a2 2 0 00-2 2v16a2 2 0 002 2z"></path>
+                                                    </svg>
+                                                )}
+                                                <div>
+                                                    <p className="text-[var(--text-primary)] font-medium">{file.name}</p>
+                                                    <p className="text-[var(--text-secondary)] text-sm">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    )) : <p className="text-gray-400">No tables extracted.</p>}
-                                </div>
-                            </details>
-
-                            <details className="mb-6">
-                                <summary className="text-lg font-semibold text-blue-200">Predefined Questions</summary>
-                                <div className="mt-2">
-                                    {output.answers && output.answers.map((ans, index) => (
-                                        <div key={index} className="mb-4">
-                                            <p className="font-semibold text-gray-200">Q: {ans.query}</p>
-                                            <p className="text-gray-300">A: {ans.answer}</p>
-                                            <details className="mt-2">
-                                                <summary className="text-blue-400">View Context</summary>
-                                                <p className="text-gray-300 bg-gray-800/50 p-2 rounded glass-container">{ans.context}</p>
-                                            </details>
+                                            <button
+                                                onClick={() => removeFile(index)}
+                                                className="text-red-400 hover:text-red-300"
+                                                aria-label={`Remove ${file.name}`}
+                                            >
+                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
-                            </details>
-                        </div>
-                    )}
-
-                    <div className="mt-10">
-                        <label className="block text-gray-200 font-semibold mb-2 text-lg" htmlFor="query-input">Ask a Custom Question</label>
-                        <textarea
-                            id="query-input"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Enter your question (e.g., What are the key findings?)"
-                            className="w-full p-3 rounded glass-input mb-4 min-h-[100px] resize-y"
-                            aria-label="Custom question input"
-                        />
-                        <div className="mb-4">
-                            <p className="text-gray-200 font-semibold mb-2">Suggested Questions:</p>
-                            <div className="flex flex-wrap gap-2">
-                                {suggestedQuestions.map((question, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => handleSuggestedQuestion(question)}
-                                        className="px-3 py-1 bg-blue-500/20 hover:bg-blue-500/40 text-blue-200 rounded-full text-sm transition duration-200"
-                                    >
-                                        {question}
-                                    </button>
-                                ))}
                             </div>
-                        </div>
+                        )}
+
                         <button
-                            onClick={handleQuerySubmit}
-                            disabled={loading || !output || !query}
-                            className={`w-full py-3 px-6 rounded-lg text-white font-semibold ${loading || !output || !query ? 'btn-disabled' : 'btn-primary'} transition duration-200`}
-                            data-tooltip="Submit your custom question"
+                            onClick={handleProcessFiles}
+                            disabled={loading || files.length === 0}
+                            className={`w-full btn-primary ${loading || files.length === 0 ? 'btn-disabled' : ''}`}
+                            data-tooltip="Process uploaded files to extract insights"
                         >
                             {loading ? (
                                 <span className="flex items-center justify-center">
@@ -434,28 +489,139 @@
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                                     </svg>
-                                    Answering...
+                                    Processing...
                                 </span>
-                            ) : "Submit Query"}
+                            ) : "Process Files"}
                         </button>
-                    </div>
+                        {loading && (
+                            <div className="mt-4">
+                                <div className="w-full bg-[var(--card-border)] rounded-full h-2">
+                                    <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+                                </div>
+                            </div>
+                        )}
 
-                    {customAnswer && (
-                        <div className="mt-10">
-                            <h2 className="text-2xl font-semibold mb-6 text-blue-200">Custom Question</h2>
-                            <div className="glass-container p-6">
-                                <p className="font-semibold text-gray-200">Q: {customAnswer.query}</p>
-                                <p className="text-gray-300">A: {customAnswer.answer}</p>
-                                <details className="mt-2">
-                                    <summary className="text-blue-400">View Context</summary>
-                                    <p className="text-gray-300 bg-gray-800/50 p-2 rounded glass-container">{customAnswer.context}</p>
+                        {error && <p className="text-red-400 mt-4 text-center">{error}</p>}
+
+                        {output && (
+                            <div className="mt-10">
+                                <h2 className="text-2xl font-semibold mb-6">Analysis Results</h2>
+                                <details open className="mb-6 card animate-in">
+                                    <summary className="text-lg font-semibold">Summary</summary>
+                                    <div className="p-6">
+                                        <p className="text-[var(--text-primary)]">{output.summary}</p>
+                                    </div>
+                                </details>
+
+                                <details className="mb-6 card animate-in">
+                                    <summary className="text-lg font-semibold">Extracted Tables</summary>
+                                    <div className="mt-2">
+                                        {output.tables && output.tables.length > 0 ? output.tables.map((table, index) => (
+                                            <div key={index} className="mb-6">
+                                                <h3 className="text-lg font-semibold mb-2">Table {index + 1}</h3>
+                                                <div className="table-container">
+                                                    <table>
+                                                        <thead>
+                                                            <tr>
+                                                                {Object.keys(table[0] || {}).map((col) => (
+                                                                    <th key={col}>{col}</th>
+                                                                ))}
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {table.map((row, rowIndex) => (
+                                                                <tr key={rowIndex}>
+                                                                    {Object.values(row).map((cell, cellIndex) => (
+                                                                        <td key={cellIndex}>{cell}</td>
+                                                                    ))}
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        )) : <p className="text-[var(--text-secondary)]">No tables extracted.</p>}
+                                    </div>
+                                </details>
+
+                                <details className="mb-6 card animate-in">
+                                    <summary className="text-lg font-semibold">Predefined Questions</summary>
+                                    <div className="mt-2">
+                                        {output.answers && output.answers.map((ans, index) => (
+                                            <div key={index} className="mb-4">
+                                                <p className="font-semibold text-[var(--text-primary)]">Q: {ans.query}</p>
+                                                <p className="text-[var(--text-secondary)]">A: {ans.answer}</p>
+                                                <details className="mt-2">
+                                                    <summary className="text-blue-400">View Context</summary>
+                                                    <p className="text-[var(--text-secondary)] bg-[var(--card-bg)] p-2 rounded">{ans.context}</p>
+                                                </details>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </details>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    <div className="mt-8 text-gray-400 text-sm">
-                        <p>Need help? Supported formats: PDF, XLSX, JPG, PNG (max 10MB each). Drag and drop files or click to browse.</p>
+                        <div className="mt-10 card">
+                            <label className="block text-[var(--text-primary)] font-semibold mb-4 text-lg" htmlFor="query-input">Ask a Custom Question</label>
+                            <textarea
+                                id="query-input"
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                placeholder="Enter your question (e.g., What are the key findings?)"
+                                className="w-full glass-input mb-4 min-h-[100px]"
+                                aria-label="Custom question input"
+                                ref={textareaRef}
+                            />
+                            <div className="mb-4">
+                                <p className="text-[var(--text-primary)] font-semibold mb-2">Suggested Questions:</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {suggestedQuestions.map((question, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => handleSuggestedQuestion(question)}
+                                            className="px-3 py-1 bg-blue-500/20 hover:bg-blue-500/40 text-[var(--text-primary)] rounded-full text-sm transition duration-200 transform hover:scale-105"
+                                        >
+                                            {question}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            <button
+                                onClick={handleQuerySubmit}
+                                disabled={loading || !output || !query}
+                                className={`w-full btn-primary ${loading || !output || !query ? 'btn-disabled' : ''}`}
+                                data-tooltip="Submit your custom question"
+                            >
+                                {loading ? (
+                                    <span className="flex items-center justify-center">
+                                        <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                        </svg>
+                                        Answering...
+                                    </span>
+                                ) : "Submit Query"}
+                            </button>
+                        </div>
+
+                        {customAnswer && (
+                            <div className="mt-10 card animate-in">
+                                <h2 className="text-2xl font-semibold mb-6">Custom Question</h2>
+                                <div className="p-6">
+                                    <p className="font-semibold text-[var(--text-primary)]">Q: {customAnswer.query}</p>
+                                    <p className="text-[var(--text-secondary)]">A: {customAnswer.answer}</p>
+                                    <details className="mt-2">
+                                        <summary className="text-blue-400">View Context</summary>
+                                        <p className="text-[var(--text-secondary)] bg-[var(--card-bg)] p-2 rounded">{customAnswer.context}</p>
+                                    </details>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="mt-8 text-[var(--text-secondary)] text-sm">
+                            <p>Need help? Supported formats: PDF, XLSX, JPG, PNG (max 10MB each). Drag and drop files or click to browse.</p>
+                        </div>
                     </div>
                 </div>
             );
