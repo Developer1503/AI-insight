@@ -1,151 +1,73 @@
-# 🧠 InsightCopilot – AI-Powered Document Analysis
+# Welcome to your Lovable project
 
-**InsightCopilot** is a powerful AI-powered assistant that helps users analyze and extract insights from uploaded documents such as PDFs, images, and spreadsheets. Built using Django on the backend, and Tailwind/HTML on the frontend.
+## Project info
 
----
+**URL**: https://lovable.dev/projects/bac05d43-da0f-4645-aa5e-a529f5bb48ae
 
-## 📁 Project Structure
+## How can I edit this code?
 
-```
-developer1503-ai-insight/
-├── app.html                        # Frontend UI (can be integrated with Django templates)
-├── index.html                     # Landing page
-└── insight_copilot/               # Django project root
-    ├── manage.py
-    ├── apps/                      # Custom Django app
-    │   ├── admin.py
-    │   ├── apps.py
-    │   ├── models.py
-    │   ├── views.py
-    │   └── migrations/
-    └── insight_copilot/           # Django config module
-        ├── settings.py
-        ├── urls.py
-        ├── wsgi.py
-        └── asgi.py
-```
+There are several ways of editing your application.
 
----
+**Use Lovable**
 
-## 🚀 Features
+Simply visit the [Lovable Project](https://lovable.dev/projects/bac05d43-da0f-4645-aa5e-a529f5bb48ae) and start prompting.
 
-- 📄 Upload documents (PDFs, images, spreadsheets)
-- 🧠 AI-powered analysis and summarization
-- 📊 Extracted insights and visualizations
-- 🌙 Light/Dark theme toggle (if using Tailwind)
-- ⚙️ Extensible backend API (Django)
+Changes made via Lovable will be committed automatically to this repo.
 
----
+**Use your preferred IDE**
 
-## ⚙️ Installation & Setup
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-### 1. Clone the Repository
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-```bash
-git clone https://github.com/your-username/developer1503-ai-insight.git
-cd developer1503-ai-insight
+Follow these steps:
+
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone <YOUR_GIT_URL>
+
+# Step 2: Navigate to the project directory.
+cd <YOUR_PROJECT_NAME>
+
+# Step 3: Install the necessary dependencies.
+npm i
+
+# Step 4: Start the development server with auto-reloading and an instant preview.
+npm run dev
 ```
 
-### 2. Create a Virtual Environment
+**Edit a file directly in GitHub**
 
-```bash
-python -m venv venv
-source venv/bin/activate     # On Windows: venv\Scripts\activate
-```
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
 
-### 3. Install Dependencies
+**Use GitHub Codespaces**
 
-```bash
-pip install -r requirements.txt
-```
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
 
-If `requirements.txt` doesn't exist, install manually:
+## What technologies are used for this project?
 
-```bash
-pip install django
-```
+This project is built with:
 
-### 4. Apply Migrations
+- Vite
+- TypeScript
+- React
+- shadcn-ui
+- Tailwind CSS
 
-```bash
-python manage.py migrate
-```
+## How can I deploy this project?
 
-### 5. Run Development Server
+Simply open [Lovable](https://lovable.dev/projects/bac05d43-da0f-4645-aa5e-a529f5bb48ae) and click on Share -> Publish.
 
-```bash
-python manage.py runserver
-```
+## Can I connect a custom domain to my Lovable project?
 
-Visit: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+Yes, you can!
 
----
+To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
-## 🗂️ Template Integration
-
-If `app.html` is a custom frontend:
-
-1. Move it to a `templates/` directory.
-2. Update `settings.py`:
-
-   ```python
-   TEMPLATES = [
-       {
-           'BACKEND': 'django.template.backends.django.DjangoTemplates',
-           'DIRS': [BASE_DIR / "templates"],
-           ...
-       },
-   ]
-   ```
-
-3. Add a view in `apps/views.py`:
-
-   ```python
-   from django.shortcuts import render
-
-   def home(request):
-       return render(request, 'app.html')
-   ```
-
-4. Add URL in `insight_copilot/urls.py`:
-
-   ```python
-   from django.urls import path
-   from apps import views
-
-   urlpatterns = [
-       path('', views.home, name='home'),
-   ]
-   ```
-
----
-
-## 🧪 Testing
-
-To run tests:
-
-```bash
-python manage.py test
-```
-
----
-
-## 📦 Deployment
-
-You can deploy this on platforms like:
-
-- **Render** – Fullstack Django hosting
-- **Vercel** – Frontend hosting only (e.g., export static build)
-- **Railway** / **Heroku** – Full backend deployment
-
----
-
-## 👨‍💻 Author
-
-- **Vedant Shinde** – [@developer1503](https://github.com/developer1503)
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
