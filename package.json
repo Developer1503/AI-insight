@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "vite_react_shadcn_ts",
   "private": true,
   "version": "0.0.0",
@@ -82,3 +83,24 @@
     "vite": "^5.4.19"
   }
 }
+=======
+  "name": "insight-copilot-backend",
+  "version": "1.0.0",
+  "description": "AI-powered document analysis backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "@google/generative-ai": "^0.2.1",
+    "pdf-parse": "^1.1.1",
+    "xlsx": "^0.18.5",
+    "sharp": "^0.32.6"
+  }
+}
+>>>>>>> 1021236dccfb7c1dc7215ba0cb4ff39cdc21658e
